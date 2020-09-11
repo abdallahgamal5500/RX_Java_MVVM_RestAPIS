@@ -1,9 +1,12 @@
 package ui;
 
 import android.view.Display;
+import android.widget.Toast;
 
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
+
+import com.example.mvvm_rxjava.MainActivity;
 
 import java.util.List;
 
@@ -22,10 +25,19 @@ public class viewModel extends ViewModel {
     public MutableLiveData<String> error = new MutableLiveData<>();
 
     public void getPosts() {
-        Observable<List<Model>> observable = PostClient.getINSTANCE().getPosts()
+        Observable<List<Model>> observable = getObservable()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread());
-        Observer<List<Model>> observer = new Observer<List<Model>>() {
+        Observer<List<Model>> observer = getObserver();
+        observable.subscribe(observer);
+    }
+
+    private Observable<List<Model>> getObservable() {
+        return PostClient.getINSTANCE().getPosts();
+    }
+
+    private Observer<List<Model>> getObserver() {
+        return new Observer<List<Model>>() {
             @Override
             public void onSubscribe(Disposable d) {
 
@@ -38,7 +50,7 @@ public class viewModel extends ViewModel {
 
             @Override
             public void onError(Throwable e) {
-
+                error.setValue("Error");
             }
 
             @Override
@@ -46,6 +58,5 @@ public class viewModel extends ViewModel {
 
             }
         };
-        observable.subscribe(observer);
     }
 }
