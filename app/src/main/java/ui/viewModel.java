@@ -15,6 +15,7 @@ import io.reactivex.Flowable;
 import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import pojo.Model;
@@ -23,6 +24,7 @@ public class viewModel extends ViewModel {
 
     public MutableLiveData<List<Model>> mutableLiveData = new MutableLiveData<>();
     public MutableLiveData<String> error = new MutableLiveData<>();
+    private CompositeDisposable disposable = new CompositeDisposable();
 
     public void getPosts() {
         Observable<List<Model>> observable = getObservable()
@@ -40,7 +42,7 @@ public class viewModel extends ViewModel {
         return new Observer<List<Model>>() {
             @Override
             public void onSubscribe(Disposable d) {
-
+                disposable.add(d);
             }
 
             @Override
@@ -58,5 +60,11 @@ public class viewModel extends ViewModel {
 
             }
         };
+    }
+
+    @Override
+    protected void onCleared() {
+        super.onCleared();
+        disposable.clear();
     }
 }
